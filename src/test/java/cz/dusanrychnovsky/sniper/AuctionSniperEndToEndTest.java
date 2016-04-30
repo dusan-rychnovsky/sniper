@@ -1,3 +1,5 @@
+package cz.dusanrychnovsky.sniper;
+
 import org.junit.After;
 import org.junit.Test;
 
