@@ -12,6 +12,7 @@ public class ApplicationRunner {
   private static final String XMPP_HOSTNAME = "localhost";
   private static final String SNIPER_ID = "sniper";
   private static final String SNIPER_PASSWORD = "sniper";
+  public static final String SNIPER_XMPP_ID = "sniper@localhost/Auction";
 
   private AuctionSniperDriver driver;
 
@@ -41,6 +42,10 @@ public class ApplicationRunner {
     if (driver != null) {
       driver.dispose();
     }
+  }
+
+  public void hasShownSniperIsBidding() {
+    driver.showsSniperStatus(Main.MainWindow.BIDDING);
   }
 
   private static class AuctionSniperDriver extends JFrameDriver {

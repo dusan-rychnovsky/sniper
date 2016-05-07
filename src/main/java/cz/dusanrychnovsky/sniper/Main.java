@@ -9,10 +9,12 @@ import org.jivesoftware.smack.packet.Message;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import static java.lang.String.format;
 
-public class Main {
+public class Main implements AuctionEventListener {
 
   private static final int ARG_HOSTNAME = 0;
   private static final int ARG_USERNAME = 1;
@@ -22,6 +24,9 @@ public class Main {
   private static final String AUCTION_RESOURCE = "Auction";
   private static final String ITEM_ID_AS_LOGIN = "auction-%s";
   private static final String AUCTION_ID_FORMAT = ITEM_ID_AS_LOGIN + "@%s/" + AUCTION_RESOURCE;
+  
+  public static final String JOIN_COMMAND_FORMAT = "SOLVersion: 1.1; Command: JOIN;";
+  public static final String BID_COMMAND_FORMAT = "SOLVersion: 1.1; Command: BID; Bid: %d;";
 
   private MainWindow ui;
   private Chat notToBeGCd;
@@ -59,27 +64,40 @@ public class Main {
   private void joinAuction(XMPPConnection connection, String itemId)
     throws XMPPException {
 
+    disconnectWhenUICloses(connection);
+
     final Chat chat = connection.getChatManager().createChat(
       auctionId(itemId, connection),
-      new MessageListener() {
-        public void processMessage(Chat chat, Message message) {
-          SwingUtilities.invokeLater(
-            new Runnable() {
-              public void run() {
-                ui.showStatus(MainWindow.STATUS_LOST);
-              }
-            }
-          );
+      new AuctionMessageTranslator(this)
+    );
+    chat.sendMessage(JOIN_COMMAND_FORMAT);
+
+    this.notToBeGCd = chat;
+  }
+
+  private void disconnectWhenUICloses(final XMPPConnection connection) {
+    ui.addWindowListener(
+      new WindowAdapter() {
+        @Override
+        public void windowClosed(WindowEvent e) {
+          connection.disconnect();
         }
       }
     );
-    this.notToBeGCd = chat;
-
-    chat.sendMessage(new Message());
   }
 
   private static String auctionId(String itemId, XMPPConnection connection) {
     return format(AUCTION_ID_FORMAT, itemId, connection.getServiceName());
+  }
+
+  public void auctionClosed() {
+    SwingUtilities.invokeLater(
+      () -> ui.showStatus(MainWindow.STATUS_LOST)
+    );
+  }
+
+  public void currentPrice(int price, int increment) {
+
   }
 
   public static class MainWindow extends JFrame {
@@ -89,6 +107,7 @@ public class Main {
     public static final String SNIPER_STATUS_NAME = "sniper status";
     public static final String STATUS_JOINING = "joining";
     public static final String STATUS_LOST = "lost";
+    public static final String BIDDING = "bidding";
 
     private final JLabel sniperStatus = createLabel(STATUS_JOINING);
 
