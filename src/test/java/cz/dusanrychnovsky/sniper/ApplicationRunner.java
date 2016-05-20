@@ -31,11 +31,11 @@ public class ApplicationRunner {
     thread.setDaemon(true);
     thread.start();
     driver = new AuctionSniperDriver(1000);
-    driver.showsSniperStatus(Main.MainWindow.STATUS_JOINING);
+    driver.showsSniperStatus(MainWindow.STATUS_JOINING);
   }
 
   public void showsSniperHasLostAuction() {
-    driver.showsSniperStatus(Main.MainWindow.STATUS_LOST);
+    driver.showsSniperStatus(MainWindow.STATUS_LOST);
   }
 
   public void stop() {
@@ -45,7 +45,7 @@ public class ApplicationRunner {
   }
 
   public void hasShownSniperIsBidding() {
-    driver.showsSniperStatus(Main.MainWindow.BIDDING);
+    driver.showsSniperStatus(MainWindow.STATUS_BIDDING);
   }
 
   private static class AuctionSniperDriver extends JFrameDriver {
@@ -54,7 +54,7 @@ public class ApplicationRunner {
       super(
         new GesturePerformer(),
         JFrameDriver.topLevelFrame(
-          named(Main.MainWindow.MAIN_WINDOW_NAME),
+          named(MainWindow.MAIN_WINDOW_NAME),
           showingOnScreen()
         ),
         new AWTEventQueueProber(
@@ -65,7 +65,7 @@ public class ApplicationRunner {
     }
 
     public void showsSniperStatus(String statusText) {
-      new JLabelDriver(this, named(Main.MainWindow.SNIPER_STATUS_NAME))
+      new JLabelDriver(this, named(MainWindow.SNIPER_STATUS_NAME))
         .hasText(equalTo(statusText));
     }
   }

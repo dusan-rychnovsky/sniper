@@ -87,7 +87,7 @@ public class FakeAuctionServer {
 
     receivesAMessageMatching(
       sniperId,
-      equalTo(format(Main.BID_COMMAND_FORMAT, bid))
+      equalTo(format(XMPPAuction.BID_COMMAND_FORMAT, bid))
     );
   }
 
@@ -96,7 +96,7 @@ public class FakeAuctionServer {
 
     receivesAMessageMatching(
       sniperId,
-      equalTo(Main.JOIN_COMMAND_FORMAT)
+      equalTo(XMPPAuction.JOIN_COMMAND_FORMAT)
     );
   }
 
