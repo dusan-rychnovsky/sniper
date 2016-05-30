@@ -4,6 +4,8 @@ import org.jivesoftware.smack.XMPPException;
 import org.junit.After;
 import org.junit.Test;
 
+import static cz.dusanrychnovsky.sniper.ApplicationRunner.SNIPER_XMPP_ID;
+
 public class AuctionSniperEndToEndTest {
 
   private final FakeAuctionServer auction = new FakeAuctionServer("item-54321");
@@ -19,19 +21,42 @@ public class AuctionSniperEndToEndTest {
   }
 
   @Test
-  public void sniperMakesAHigherBidButLooses() throws XMPPException, InterruptedException {
+  public void sniperMakesAHigherBidButLooses()
+      throws XMPPException, InterruptedException {
+
     auction.startSellingItem();
 
     application.startBiddingIn(auction);
-    auction.hasReceivedJoinRequestFrom(ApplicationRunner.SNIPER_XMPP_ID);
+    auction.hasReceivedJoinRequestFrom(SNIPER_XMPP_ID);
 
     auction.reportPrice(1000, 98, "other bidder");
     application.hasShownSniperIsBidding();
 
-    auction.hasReceivedBid(1098, ApplicationRunner.SNIPER_XMPP_ID);
+    auction.hasReceivedBid(1098, SNIPER_XMPP_ID);
 
     auction.announceClosed();
     application.showsSniperHasLostAuction();
+  }
+
+  @Test
+  public void sniperWinsAnAuctionByBiddingHigher()
+      throws XMPPException, InterruptedException {
+
+    auction.startSellingItem();
+
+    application.startBiddingIn(auction);
+    auction.hasReceivedJoinRequestFrom(SNIPER_XMPP_ID);
+
+    auction.reportPrice(1000, 98, "other bidder");
+    application.hasShownSniperIsBidding();
+
+    auction.hasReceivedBid(1098, SNIPER_XMPP_ID);
+
+    auction.reportPrice(1098, 97, SNIPER_XMPP_ID);
+    application.hasShownSniperIsWinning();
+
+    auction.announceClosed();
+    application.showSniperHasWonAuction();
   }
 
   @After

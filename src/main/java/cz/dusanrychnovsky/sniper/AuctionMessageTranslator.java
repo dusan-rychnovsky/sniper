@@ -1,5 +1,6 @@
 package cz.dusanrychnovsky.sniper;
 
+import cz.dusanrychnovsky.sniper.AuctionEventListener.PriceSource;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.packet.Message;
@@ -7,11 +8,16 @@ import org.jivesoftware.smack.packet.Message;
 import java.util.HashMap;
 import java.util.Map;
 
+import static cz.dusanrychnovsky.sniper.AuctionEventListener.PriceSource.FromOtherBidder;
+import static cz.dusanrychnovsky.sniper.AuctionEventListener.PriceSource.FromSniper;
+
 public class AuctionMessageTranslator implements MessageListener {
 
   private final AuctionEventListener listener;
+  private final String sniperId;
 
-  public AuctionMessageTranslator(AuctionEventListener listener) {
+  public AuctionMessageTranslator(String sniperId, AuctionEventListener listener) {
+    this.sniperId = sniperId;
     this.listener = listener;
   }
 
@@ -24,7 +30,11 @@ public class AuctionMessageTranslator implements MessageListener {
       listener.auctionClosed();
     }
     else if ("PRICE".equals(type)) {
-      listener.currentPrice(event.currentPrice(), event.increment());
+      listener.currentPrice(
+        event.currentPrice(),
+        event.increment(),
+        event.isFrom(sniperId)
+      );
     }
   }
 
@@ -67,6 +77,14 @@ public class AuctionMessageTranslator implements MessageListener {
 
     private static String[] fieldsIn(String messageBody) {
       return messageBody.split(";");
+    }
+
+    public PriceSource isFrom(String sniperId) {
+      return sniperId.equals(bidder()) ? FromSniper : FromOtherBidder;
+    }
+
+    private String bidder() {
+      return get("Bidder");
     }
   }
 }

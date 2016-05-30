@@ -2,6 +2,8 @@ package cz.dusanrychnovsky.sniper;
 
 import javax.swing.*;
 
+import static cz.dusanrychnovsky.sniper.MainWindow.*;
+
 public class SniperStateDisplayer implements SniperListener {
 
   private MainWindow ui;
@@ -17,7 +19,17 @@ public class SniperStateDisplayer implements SniperListener {
 
   @Override
   public void sniperBidding() {
-    showStatus(MainWindow.STATUS_BIDDING);
+    showStatus(STATUS_BIDDING);
+  }
+
+  @Override
+  public void sniperWinning() {
+    showStatus(STATUS_WINNING);
+  }
+
+  @Override
+  public void sniperWon() {
+    showStatus(MainWindow.STATUS_WON);
   }
 
   private void showStatus(String status) {
